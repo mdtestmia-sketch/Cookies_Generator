@@ -13,6 +13,7 @@ UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like 
 def process_single_account(acc):
     user = acc.get('u')
     pw = acc.get('p')
+    two_fa = acc.get('key')
     key = acc.get('key', "").replace(" ", "")
 
     L = instaloader.Instaloader(quiet=True)
@@ -27,9 +28,9 @@ def process_single_account(acc):
             totp = pyotp.TOTP(key)
             L.two_factor_login(totp.now())
         except:
-            return {"user": user, "status": "failed", "reason": "2FA_Error"}
+            return {"username": user, "password":pw, "two_fa":two_fa, "status": "failed", "reason": "2FA_Error"}
     except Exception as e:
-        return {"user": user, "status": "failed", "reason": str(e)}
+        return {"username": user, "password":pw, "two_fa":two_fa, "status": "failed", "reason": str(e)}
 
     # কুকিজ ডিকশনারি থেকে স্ট্রিং বানানো (আপনার দেওয়া ফরম্যাট অনুযায়ী)
     cookies = L.context._session.cookies.get_dict()
@@ -41,6 +42,8 @@ def process_single_account(acc):
 
     return {
         "user": user,
+        "password": pw,
+        "two_fa": two_fa,
         "status": "success",
         "cookies": formatted_result
     }
